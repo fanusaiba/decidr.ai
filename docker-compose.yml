@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      MONGO_URI: mongodb://127.0.0.1:27017/ai-decision-tracker
+      JWT_SECRET: ${JWT_SECRET:-changeme_in_production}
+      CLIENT_URL: http://localhost:3000
+    depends_on:
+      - mongo
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  mongo_data:
